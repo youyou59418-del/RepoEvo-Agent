@@ -1,0 +1,12 @@
+.git
+.env
+.env.*
+.artifacts
+.pytest_cache
+.mypy_cache
+.ruff_cache
+__pycache__
+**/__pycache__
+*.py[cod]
+apps/web/node_modules
+apps/web/.next

@@ -1,0 +1,14 @@
+.venv/
+.conda/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.bundle
+.artifacts/
+benchmarks/private/
+scripts/build_benchmarks.py
+.env
+.env.*
+!.env.example

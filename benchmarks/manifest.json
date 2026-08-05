@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "task_count": 20,
+  "repositories": [
+    "inventory-lib",
+    "order-service",
+    "report-worker"
+  ],
+  "tasks": [
+    "order-001",
+    "order-002",
+    "order-003",
+    "order-004",
+    "order-005",
+    "order-006",
+    "inventory-001",
+    "inventory-002",
+    "inventory-003",
+    "inventory-004",
+    "inventory-005",
+    "inventory-006",
+    "inventory-007",
+    "report-001",
+    "report-002",
+    "report-003",
+    "report-004",
+    "report-005",
+    "report-006",
+    "report-007"
+  ]
+}
