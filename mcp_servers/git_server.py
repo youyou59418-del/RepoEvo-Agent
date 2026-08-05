@@ -31,7 +31,10 @@ def make_git_server(repo_root: Path) -> FastMCP:
             "commits": result.stdout.splitlines(),
         }
 
-    @mcp.tool(name="prepare_commit", description="Prepare a commit intent without creating a remote side effect.")
+    @mcp.tool(
+        name="prepare_commit",
+        description="Prepare a commit intent without creating a remote side effect.",
+    )
     def prepare_commit(message: str) -> dict[str, Any]:
         cleaned = message.strip()
         if not cleaned or len(cleaned) > 120:

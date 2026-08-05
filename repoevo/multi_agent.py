@@ -310,7 +310,9 @@ class TesterAgent:
             }
             category = None if sandbox_result.ok else "CODE_ERROR"
             detail = "sandbox_tests_passed" if sandbox_result.ok else "sandbox_tests_failed"
-        event = _event(state, agent=self.name, action="run_tests", ok=bool(result["ok"]), detail=detail)
+        event = _event(
+            state, agent=self.name, action="run_tests", ok=bool(result["ok"]), detail=detail
+        )
         updates: dict[str, Any] = {
             "current_step_id": "tester-1",
             "test_results": result,
@@ -346,11 +348,15 @@ class ReviewerAgent:
             "tests_changed": tests_changed,
             "reason": reason,
         }
-        event = _event(state, agent=self.name, action="review_diff", ok=bool(review["ok"]), detail=reason)
+        event = _event(
+            state, agent=self.name, action="review_diff", ok=bool(review["ok"]), detail=reason
+        )
         updates: dict[str, Any] = {
             "current_step_id": "reviewer-1",
             "review_result": review,
-            "evidence": _append(state, "evidence", {"agent": self.name, "type": "review", **review}),
+            "evidence": _append(
+                state, "evidence", {"agent": self.name, "type": "review", **review}
+            ),
             "tool_history": _append(state, "tool_history", event),
             "tool_call_count": int(state.get("tool_call_count", 0)) + 1,
             "state_version": int(state.get("state_version", 0)) + 1,

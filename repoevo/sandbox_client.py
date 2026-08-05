@@ -58,10 +58,14 @@ class SandboxResult:
             timed_out=payload["timed_out"],
             stdout=payload["stdout"],
             stderr=payload["stderr"],
-            error_code=payload.get("error_code") if isinstance(payload.get("error_code"), str) else None,
+            error_code=payload.get("error_code")
+            if isinstance(payload.get("error_code"), str)
+            else None,
             command=list(payload["command"]),
             files=list(payload["files"]),
-            limits=dict(payload.get("limits", {})) if isinstance(payload.get("limits"), dict) else {},
+            limits=dict(payload.get("limits", {}))
+            if isinstance(payload.get("limits"), dict)
+            else {},
         )
 
 
@@ -96,7 +100,9 @@ def run_in_sandbox(
         "command": command_list,
         "timeout_seconds": timeout_seconds,
     }
-    gateway_url = (base_url or os.environ.get("REPOEVO_SANDBOX_URL", "http://127.0.0.1:19090")).rstrip("/")
+    gateway_url = (
+        base_url or os.environ.get("REPOEVO_SANDBOX_URL", "http://127.0.0.1:19090")
+    ).rstrip("/")
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     request = Request(
         f"{gateway_url}/v1/sandbox/run",

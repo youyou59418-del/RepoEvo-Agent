@@ -29,14 +29,18 @@ def make_workspace_server(repo_root: Path) -> FastMCP:
             return {"ok": False, "error_code": "DIFF_FAILED", "stderr": result.stderr}
         return {"ok": True, "diff": result.stdout}
 
-    @mcp.tool(name="apply_patch", description="Apply one checked unified diff in the isolated workspace.")
+    @mcp.tool(
+        name="apply_patch", description="Apply one checked unified diff in the isolated workspace."
+    )
     def apply_workspace_patch(patch_text: str) -> dict[str, Any]:
         try:
             return {"ok": True, "changed_files": apply_patch(repo_root, patch_text)}
         except ToolError as exc:
             return {"ok": False, "error_code": str(exc)}
 
-    @mcp.tool(name="workspace_snapshot", description="Return safe text-file contents for the workspace.")
+    @mcp.tool(
+        name="workspace_snapshot", description="Return safe text-file contents for the workspace."
+    )
     def workspace_snapshot() -> dict[str, Any]:
         try:
             files = snapshot_text_files(repo_root)

@@ -25,7 +25,7 @@ def test_real_summary_keeps_public_hidden_and_end_to_end_metrics(
     evaluator = _load_evaluator()
 
     def fake_run_one(task: dict[str, Any], repeat: int, model_mode: str) -> dict[str, Any]:
-        assert task["task_id"] == "inventory-001"
+        assert task["task_id"] == "inventory-v2-001"
         assert model_mode == "openai_compatible"
         return {
             "task_id": task["task_id"],
@@ -39,7 +39,7 @@ def test_real_summary_keeps_public_hidden_and_end_to_end_metrics(
         }
 
     monkeypatch.setattr(evaluator, "run_one", fake_run_one)
-    rows, summary = evaluator.evaluate(2, "openai_compatible", ["inventory-001"])
+    rows, summary = evaluator.evaluate(2, "openai_compatible", ["inventory-v2-001"])
 
     assert len(rows) == 2
     assert summary["schema_version"] == 2
@@ -47,7 +47,7 @@ def test_real_summary_keeps_public_hidden_and_end_to_end_metrics(
     assert summary["hidden_test_pass_count"] == 1
     assert summary["success_count"] == 1
     assert summary["end_to_end_success_rate"] == 0.5
-    assert summary["selected_task_ids"] == ["inventory-001"]
+    assert summary["selected_task_ids"] == ["inventory-v2-001"]
     assert "git_revision" in summary["run_metadata"]
     assert summary["run_metadata"]["agent_limits"]["max_tool_calls"] == 12
     assert summary["run_metadata"]["model"]["replace_max_tokens"] == 384

@@ -118,7 +118,9 @@ class SQLiteCheckpointStore:
 
     def load_run(self, run_id: str) -> dict[str, Any] | None:
         with self._connect() as connection:
-            row = connection.execute("SELECT * FROM task_runs WHERE run_id = ?", (run_id,)).fetchone()
+            row = connection.execute(
+                "SELECT * FROM task_runs WHERE run_id = ?", (run_id,)
+            ).fetchone()
         return _record(row) if row else None
 
     def save_state(self, run_id: str, state: Mapping[str, Any], expected_version: int) -> int:
@@ -157,7 +159,11 @@ class SQLiteCheckpointStore:
                 (run_id,),
             ).fetchall()
         return [
-            {"event_type": row["event_type"], "payload": json.loads(row["payload"]), "created_at": row["created_at"]}
+            {
+                "event_type": row["event_type"],
+                "payload": json.loads(row["payload"]),
+                "created_at": row["created_at"],
+            }
             for row in rows
         ]
 
@@ -196,8 +202,8 @@ class PostgresCheckpointStore:
 
     def _initialize(self) -> None:
         with self._connect() as connection, connection.cursor() as cursor:
-                cursor.execute(
-                    """
+            cursor.execute(
+                """
                     CREATE TABLE IF NOT EXISTS task_runs (
                         run_id TEXT PRIMARY KEY,
                         task_id TEXT NOT NULL,
@@ -222,26 +228,26 @@ class PostgresCheckpointStore:
                         PRIMARY KEY (run_id, key)
                     );
                     """
-                )
+            )
 
     def create_run(self, run_id: str, task_id: str, state: Mapping[str, Any]) -> None:
         with self._connect() as connection, connection.cursor() as cursor:
-                cursor.execute(
-                    "INSERT INTO task_runs(run_id, task_id, status, payload) VALUES (%s, %s, %s, %s)",
-                    (run_id, task_id, str(state.get("status", "queued")), json.dumps(dict(state))),
-                )
-                cursor.execute(
-                    "INSERT INTO task_events(run_id, event_type, payload) VALUES (%s, %s, %s)",
-                    (run_id, "created", json.dumps({"task_id": task_id})),
-                )
+            cursor.execute(
+                "INSERT INTO task_runs(run_id, task_id, status, payload) VALUES (%s, %s, %s, %s)",
+                (run_id, task_id, str(state.get("status", "queued")), json.dumps(dict(state))),
+            )
+            cursor.execute(
+                "INSERT INTO task_events(run_id, event_type, payload) VALUES (%s, %s, %s)",
+                (run_id, "created", json.dumps({"task_id": task_id})),
+            )
 
     def load_run(self, run_id: str) -> dict[str, Any] | None:
         with self._connect() as connection, connection.cursor() as cursor:
-                cursor.execute(
-                    "SELECT run_id, task_id, status, state_version, worker_id, payload FROM task_runs WHERE run_id=%s",
-                    (run_id,),
-                )
-                row = cursor.fetchone()
+            cursor.execute(
+                "SELECT run_id, task_id, status, state_version, worker_id, payload FROM task_runs WHERE run_id=%s",
+                (run_id,),
+            )
+            row = cursor.fetchone()
         if not row:
             return None
         return {
@@ -255,31 +261,36 @@ class PostgresCheckpointStore:
 
     def save_state(self, run_id: str, state: Mapping[str, Any], expected_version: int) -> int:
         with self._connect() as connection, connection.cursor() as cursor:
-                cursor.execute(
-                    """
+            cursor.execute(
+                """
                     UPDATE task_runs SET status=%s, payload=%s, state_version=state_version+1,
                         updated_at=now() WHERE run_id=%s AND state_version=%s
                     """,
-                    (str(state.get("status", "running")), json.dumps(dict(state)), run_id, expected_version),
-                )
-                if cursor.rowcount != 1:
-                    raise StateConflict(f"CHECKPOINT_VERSION_CONFLICT:{run_id}:{expected_version}")
+                (
+                    str(state.get("status", "running")),
+                    json.dumps(dict(state)),
+                    run_id,
+                    expected_version,
+                ),
+            )
+            if cursor.rowcount != 1:
+                raise StateConflict(f"CHECKPOINT_VERSION_CONFLICT:{run_id}:{expected_version}")
         return expected_version + 1
 
     def append_event(self, run_id: str, event_type: str, payload: Mapping[str, Any]) -> None:
         with self._connect() as connection, connection.cursor() as cursor:
-                cursor.execute(
-                    "INSERT INTO task_events(run_id, event_type, payload) VALUES (%s, %s, %s)",
-                    (run_id, event_type, json.dumps(dict(payload))),
-                )
+            cursor.execute(
+                "INSERT INTO task_events(run_id, event_type, payload) VALUES (%s, %s, %s)",
+                (run_id, event_type, json.dumps(dict(payload))),
+            )
 
     def get_events(self, run_id: str) -> list[dict[str, Any]]:
         with self._connect() as connection, connection.cursor() as cursor:
-                cursor.execute(
-                    "SELECT event_type, payload, created_at FROM task_events WHERE run_id=%s ORDER BY id",
-                    (run_id,),
-                )
-                rows = cursor.fetchall()
+            cursor.execute(
+                "SELECT event_type, payload, created_at FROM task_events WHERE run_id=%s ORDER BY id",
+                (run_id,),
+            )
+            rows = cursor.fetchall()
         return [
             {"event_type": row[0], "payload": row[1], "created_at": row[2].isoformat()}
             for row in rows
@@ -287,18 +298,18 @@ class PostgresCheckpointStore:
 
     def get_idempotency(self, run_id: str, key: str) -> dict[str, Any] | None:
         with self._connect() as connection, connection.cursor() as cursor:
-                cursor.execute(
-                    "SELECT response FROM idempotency_keys WHERE run_id=%s AND key=%s", (run_id, key)
-                )
-                row = cursor.fetchone()
+            cursor.execute(
+                "SELECT response FROM idempotency_keys WHERE run_id=%s AND key=%s", (run_id, key)
+            )
+            row = cursor.fetchone()
         return row[0] if row else None
 
     def put_idempotency(self, run_id: str, key: str, response: Mapping[str, Any]) -> None:
         with self._connect() as connection, connection.cursor() as cursor:
-                cursor.execute(
-                    "INSERT INTO idempotency_keys(run_id, key, response) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING",
-                    (run_id, key, json.dumps(dict(response))),
-                )
+            cursor.execute(
+                "INSERT INTO idempotency_keys(run_id, key, response) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING",
+                (run_id, key, json.dumps(dict(response))),
+            )
 
 
 class TaskQueue(Protocol):
@@ -464,7 +475,9 @@ class TaskRuntime:
         return response
 
     def pause(self, run_id: str) -> dict[str, Any]:
-        return self._command(run_id, command="pause", target_status="paused", allowed={"queued", "running"})
+        return self._command(
+            run_id, command="pause", target_status="paused", allowed={"queued", "running"}
+        )
 
     def resume(self, run_id: str) -> dict[str, Any]:
         return self._command(run_id, command="resume", target_status="queued", allowed={"paused"})
@@ -491,7 +504,12 @@ class TaskRuntime:
         state = dict(record["state"])
         state["approval"] = "approved"
         version = self.store.save_state(run_id, state, int(record["state_version"]))
-        response = {"run_id": run_id, "status": record["status"], "approved": True, "state_version": version}
+        response = {
+            "run_id": run_id,
+            "status": record["status"],
+            "approved": True,
+            "state_version": version,
+        }
         self.store.append_event(run_id, "approved", response)
         self.store.put_idempotency(run_id, key, response)
         return response
@@ -507,7 +525,9 @@ class TaskRuntime:
             state = dict(record["state"])
             state.update({"status": "running", "worker_id": worker_id})
             version = self.store.save_state(run_id, state, int(record["state_version"]))
-            self.store.append_event(run_id, "claimed", {"worker_id": worker_id, "state_version": version})
+            self.store.append_event(
+                run_id, "claimed", {"worker_id": worker_id, "state_version": version}
+            )
             record["state"] = state
             record["status"] = "running"
             record["state_version"] = version

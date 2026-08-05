@@ -1,4 +1,6 @@
 .venv/
+.uv-cache/
+*.egg-info/
 .conda/
 __pycache__/
 *.py[cod]

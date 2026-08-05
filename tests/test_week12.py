@@ -15,8 +15,11 @@ def test_deployment_artifacts_exist() -> None:
         ROOT / "deploy" / "Dockerfile.api",
         ROOT / "deploy" / "Dockerfile.web",
         ROOT / "deploy" / "vllm" / "start.sh",
-        ROOT / "docs" / "interview_notes.md",
-        ROOT / "docs" / "demo_script.md",
+        ROOT / "uv.lock",
+        ROOT / "apps" / "web" / "package-lock.json",
+        ROOT / ".github" / "workflows" / "ci.yml",
+        ROOT / "LICENSE",
+        ROOT / "CHANGELOG.md",
     ]
     assert all(path.exists() for path in required)
 
@@ -41,4 +44,10 @@ def test_compose_contains_control_plane_services() -> None:
     assert "api:" in compose
     assert "web:" in compose
     assert "POSTGRES_PASSWORD" in compose
-    assert "profiles: [\"worker\"]" in compose
+    assert 'profiles: ["worker"]' in compose
+
+
+def test_docker_build_context_excludes_private_benchmark_assets() -> None:
+    dockerignore = (ROOT / ".dockerignore").read_text(encoding="utf-8")
+    assert "benchmarks/private/" in dockerignore
+    assert "scripts/build_benchmarks.py" in dockerignore

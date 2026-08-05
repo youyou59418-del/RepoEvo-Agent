@@ -137,9 +137,7 @@ def create_llm(settings: LLMSettings) -> Any:
     """Create the guide-compatible ChatOpenAI adapter when configured."""
 
     if not settings.configured:
-        raise ModelConfigError(
-            "LLM_NOT_CONFIGURED: set LLM_BASE_URL, LLM_API_KEY, and LLM_MODEL"
-        )
+        raise ModelConfigError("LLM_NOT_CONFIGURED: set LLM_BASE_URL, LLM_API_KEY, and LLM_MODEL")
     base_url = settings.llm_base_url
     api_key = settings.llm_api_key
     model = settings.llm_model
@@ -234,21 +232,23 @@ class OpenAICompatibleDecisionModel:
             self.settings.llm_replace_max_tokens,
             self.settings.llm_max_tokens,
         )
-        response = self.llm.bind(max_completion_tokens=replace_tokens).with_structured_output(
-            ReplaceTextDecision
-        ).invoke(
-            [
-                (
-                    "system",
-                    """You are in the exact-edit phase of a cautious software maintenance Agent.
+        response = (
+            self.llm.bind(max_completion_tokens=replace_tokens)
+            .with_structured_output(ReplaceTextDecision)
+            .invoke(
+                [
+                    (
+                        "system",
+                        """You are in the exact-edit phase of a cautious software maintenance Agent.
 Return a JSON object matching the schema. Choose one non-test path from observed_files.
 old_text must be a nonempty exact substring copied from that file and must identify one
 localized change. new_text must be the smallest correct replacement. Keep both strings
 short and do not include surrounding functions. Do not use a diff, Markdown,
 explanations, or test-file edits.""",
-                ),
-                ("human", prompt),
-            ]
+                    ),
+                    ("human", prompt),
+                ]
+            )
         )
         replacement = (
             response

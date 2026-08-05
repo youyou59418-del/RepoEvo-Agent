@@ -80,11 +80,7 @@ def run_one(task: dict[str, Any], *, retry_demo: bool = False) -> dict[str, Any]
         hidden = run_repository_tests(workspace)
         public = dict(state.get("test_results", {}))
         elapsed_ms = round((time.perf_counter() - started) * 1000, 2)
-        success = (
-            state.get("status") == "completed"
-            and public.get("ok") is True
-            and hidden.ok
-        )
+        success = state.get("status") == "completed" and public.get("ok") is True and hidden.ok
         return {
             "task_id": task["task_id"],
             "model_mode": "deterministic_role_harness",

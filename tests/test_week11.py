@@ -8,7 +8,9 @@ client = TestClient(app)
 
 
 def create_task() -> str:
-    response = client.post("/api/tasks", json={"task_id": "api-test", "initial_state": {"source": "test"}})
+    response = client.post(
+        "/api/tasks", json={"task_id": "api-test", "initial_state": {"source": "test"}}
+    )
     assert response.status_code == 201
     return response.json()["run_id"]
 

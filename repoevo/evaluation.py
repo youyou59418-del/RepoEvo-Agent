@@ -6,7 +6,9 @@ from collections.abc import Iterable
 from typing import Any
 
 
-def build_evaluation_cases(template_task_ids: Iterable[str], count: int = 50) -> list[dict[str, Any]]:
+def build_evaluation_cases(
+    template_task_ids: Iterable[str], count: int = 50
+) -> list[dict[str, Any]]:
     templates = list(template_task_ids)
     if not templates or count <= 0:
         raise ValueError("EVALUATION_CASES_INVALID")

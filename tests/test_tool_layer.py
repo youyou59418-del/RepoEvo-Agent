@@ -63,7 +63,14 @@ def test_read_file_rejects_traversal(tmp_path: Path) -> None:
 def test_snapshot_rejects_symlink(tmp_path: Path) -> None:
     target = tmp_path / "target.py"
     target.write_text("ok", encoding="utf-8")
-    (tmp_path / "link.py").symlink_to(target)
+    try:
+        (tmp_path / "link.py").symlink_to(target)
+    except OSError as exc:
+        if getattr(exc, "winerror", None) == 1314:
+            pytest.skip(
+                "symbolic-link creation requires Developer Mode or elevated privileges on Windows"
+            )
+        raise
     with pytest.raises(ToolError, match="SYMLINK_NOT_ALLOWED"):
         list_files(tmp_path)
     with pytest.raises(ToolError, match="SYMLINK_NOT_ALLOWED"):

@@ -3,8 +3,8 @@ FROM node:20-slim AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
-COPY apps/web/package.json ./package.json
-RUN npm install --no-audit --no-fund
+COPY apps/web/package.json apps/web/package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
 COPY apps/web/ ./
 ARG NEXT_PUBLIC_API_BASE=http://127.0.0.1:8080

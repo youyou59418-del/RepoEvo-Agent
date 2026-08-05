@@ -18,7 +18,10 @@ class Observability:
             log_path.parent.mkdir(parents=True, exist_ok=True)
         self.registry = CollectorRegistry()
         self.task_counter = Counter(
-            "repoevo_tasks_total", "Task lifecycle events", ["event", "status"], registry=self.registry
+            "repoevo_tasks_total",
+            "Task lifecycle events",
+            ["event", "status"],
+            registry=self.registry,
         )
         self.tool_counter = Counter(
             "repoevo_tool_calls_total", "Tool calls", ["tool", "ok"], registry=self.registry
@@ -26,7 +29,9 @@ class Observability:
         self.task_duration = Histogram(
             "repoevo_task_duration_seconds", "Task duration", registry=self.registry
         )
-        self.queue_gauge = Gauge("repoevo_queue_depth", "Current queue depth", registry=self.registry)
+        self.queue_gauge = Gauge(
+            "repoevo_queue_depth", "Current queue depth", registry=self.registry
+        )
 
     def emit(
         self,

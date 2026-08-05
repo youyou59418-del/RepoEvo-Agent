@@ -80,10 +80,19 @@ docker compose --env-file .env -f deploy/docker-compose.yml up --build -d
 ### 开发检查
 
 ```bash
-python -m pytest
-python -m ruff check .
-python -m mypy repoevo
+uv sync --all-groups --frozen
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy repoevo
+
+cd apps/web
+npm ci
+npm run build
 ```
+
+Python 依赖由 `uv.lock` 锁定，前端依赖由 `apps/web/package-lock.json` 锁定；GitHub Actions 会执行同一组检查。
+公开验收命令与已记录结果见 [docs/verification.md](docs/verification.md)。
 
 ## 算力模式
 

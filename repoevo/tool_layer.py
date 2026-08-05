@@ -50,12 +50,7 @@ def _normalize_patch(
         raise ToolError("PATCH_TARGET_REQUIRED")
     relative = _relative_path(target_path).as_posix()
     _safe_file(root, relative)
-    return (
-        f"diff --git a/{relative} b/{relative}\n"
-        f"--- a/{relative}\n"
-        f"+++ b/{relative}\n"
-        f"{hunk}"
-    )
+    return f"diff --git a/{relative} b/{relative}\n--- a/{relative}\n+++ b/{relative}\n{hunk}"
 
 
 def _root(path: Path) -> Path:
@@ -234,15 +229,12 @@ def replace_text(
     updated = content.replace(old_text, new_text, 1)
     if updated == content:
         raise ToolError("REPLACEMENT_NO_CHANGE")
-    patch = (
-        f"diff --git a/{path} b/{path}\n"
-        + "".join(
-            difflib.unified_diff(
-                content.splitlines(keepends=True),
-                updated.splitlines(keepends=True),
-                fromfile=f"a/{path}",
-                tofile=f"b/{path}",
-            )
+    patch = f"diff --git a/{path} b/{path}\n" + "".join(
+        difflib.unified_diff(
+            content.splitlines(keepends=True),
+            updated.splitlines(keepends=True),
+            fromfile=f"a/{path}",
+            tofile=f"b/{path}",
         )
     )
     return apply_patch(root, patch)

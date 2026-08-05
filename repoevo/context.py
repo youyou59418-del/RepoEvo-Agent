@@ -32,7 +32,9 @@ class ArtifactStore:
         self.root = root.resolve()
         self.root.mkdir(parents=True, exist_ok=True)
 
-    def put_bytes(self, name: str, data: bytes, *, media_type: str = "application/octet-stream") -> ArtifactRef:
+    def put_bytes(
+        self, name: str, data: bytes, *, media_type: str = "application/octet-stream"
+    ) -> ArtifactRef:
         if not name or "/" in name or "\\" in name or name in {".", ".."}:
             raise ValueError("ARTIFACT_NAME_INVALID")
         digest = hashlib.sha256(data).hexdigest()
@@ -123,7 +125,9 @@ class ContextAssembler:
         for _, item in ordered:
             content = item.content
             if item.kind == "tool_output" and len(content) > max(1024, self.max_chars // 5):
-                reference = self.artifact_store.put_text(f"{item.source.replace('/', '_')}.log", content)
+                reference = self.artifact_store.put_text(
+                    f"{item.source.replace('/', '_')}.log", content
+                )
                 refs.append(reference)
                 preview = content[:350]
                 if len(content) > 700:
@@ -145,7 +149,11 @@ class ContextAssembler:
                 current += len(self._render([shortened])) + 2
             else:
                 dropped += 1
-        kept.sort(key=lambda item: items.index(next(original for original in items if original.source == item.source)))
+        kept.sort(
+            key=lambda item: items.index(
+                next(original for original in items if original.source == item.source)
+            )
+        )
         text = self._render(kept)
         return ContextResult(
             text=text,
@@ -187,16 +195,20 @@ class CodeRetriever:
             try:
                 tree = ast.parse(content, filename=path)
                 for node in ast.walk(tree):
-                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and any(
-                        token in node.name.lower() for token in tokens
-                    ):
+                    if isinstance(
+                        node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+                    ) and any(token in node.name.lower() for token in tokens):
                         symbols.append(node.name)
             except SyntaxError:
                 pass
             if token_score == 0 and not symbols:
                 continue
             score = float(token_score + len(symbols) * 3)
-            matching_lines = [index for index, line in enumerate(lines) if any(token in line.lower() for token in tokens)]
+            matching_lines = [
+                index
+                for index, line in enumerate(lines)
+                if any(token in line.lower() for token in tokens)
+            ]
             line_start = (matching_lines[0] if matching_lines else 0) + 1
             line_end = min(len(lines), line_start + 14)
             hits.append(

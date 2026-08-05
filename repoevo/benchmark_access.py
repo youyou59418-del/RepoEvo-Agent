@@ -7,7 +7,6 @@ import os
 from pathlib import Path
 from typing import Any
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_BENCHMARK_ROOT = PROJECT_ROOT / "benchmarks"
 PRIVATE_BENCHMARK_ENV = "REPOEVO_PRIVATE_BENCHMARK_ROOT"

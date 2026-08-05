@@ -19,7 +19,9 @@ from repoevo.benchmark_access import (
 )
 
 
-def run(command: list[str], cwd: Path, *, input_text: str | None = None) -> subprocess.CompletedProcess[str]:
+def run(
+    command: list[str], cwd: Path, *, input_text: str | None = None
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         command,
         cwd=cwd,

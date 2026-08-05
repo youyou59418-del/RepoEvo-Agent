@@ -25,7 +25,9 @@ def test_high_priority_facts_survive_compression(tmp_path: Path) -> None:
     assembler = ContextAssembler(ArtifactStore(tmp_path / "artifacts"), max_chars=600)
     result = assembler.assemble(
         [
-            ContextItem(kind="task", source="acceptance", priority=3, content="MUST preserve API v2."),
+            ContextItem(
+                kind="task", source="acceptance", priority=3, content="MUST preserve API v2."
+            ),
             ContextItem(kind="evidence", source="noise", priority=0, content="noise " * 500),
         ]
     )

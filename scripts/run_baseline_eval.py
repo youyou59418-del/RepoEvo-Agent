@@ -18,15 +18,15 @@ from typing import Any
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from repoevo.model_adapter import (
-    LLMSettings,
-    OfflineRepairModel,
-    OpenAICompatibleDecisionModel,
-)
 from repoevo.benchmark_access import (
     load_private_task,
     load_public_manifest,
     private_hidden_test_path,
+)
+from repoevo.model_adapter import (
+    LLMSettings,
+    OfflineRepairModel,
+    OpenAICompatibleDecisionModel,
 )
 from repoevo.single_agent import AgentConfig, BaselineState, SingleAgent
 from repoevo.tool_layer import apply_patch, run_repository_tests

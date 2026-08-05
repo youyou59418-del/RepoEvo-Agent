@@ -91,7 +91,10 @@ class FailureAnalyzer:
         test_results = state.get("test_results") or {}
         error_code = str(test_results.get("error_code", ""))
         if "TIMEOUT" in error_code or "ENVIRONMENT" in error_code:
-            return "RECOVERY_ERROR", "The test environment failed before code evidence was collected."
+            return (
+                "RECOVERY_ERROR",
+                "The test environment failed before code evidence was collected.",
+            )
         if test_results.get("ok") is False:
             return "CODE_ERROR", "The implementation did not satisfy the test evidence."
         review = state.get("review_result") or {}
@@ -121,7 +124,9 @@ class FailureAnalyzer:
             evidence_artifact_ids=list(evidence_artifact_ids),
             validation_status="candidate",
             confidence=0.2,
-            repository_scope=str(state.get("repository_id")) if state.get("repository_id") else None,
+            repository_scope=str(state.get("repository_id"))
+            if state.get("repository_id")
+            else None,
             tags=["failure", category.lower()],
         )
 
@@ -130,12 +135,20 @@ class MemoryGate:
     """Require independent evidence before a candidate can affect future runs."""
 
     def verify(self, record: MemoryRecord, evaluation: Mapping[str, Any]) -> MemoryRecord:
-        required = ("hidden_test_ok", "review_ok", "acceptance_covered", "negative_transfer_checked")
+        required = (
+            "hidden_test_ok",
+            "review_ok",
+            "acceptance_covered",
+            "negative_transfer_checked",
+        )
         passed = all(evaluation.get(key) is True for key in required)
         if not passed:
             return record.model_copy(update={"validation_status": "candidate", "confidence": 0.2})
         return record.model_copy(
-            update={"validation_status": "verified", "confidence": min(0.95, max(record.confidence, 0.8))}
+            update={
+                "validation_status": "verified",
+                "confidence": min(0.95, max(record.confidence, 0.8)),
+            }
         )
 
     def publish(self, record: MemoryRecord) -> MemoryRecord:
@@ -148,7 +161,9 @@ class MemoryRetriever:
     def __init__(self, store: MemoryStore) -> None:
         self.store = store
 
-    def retrieve(self, query: str, *, repository_scope: str | None = None, limit: int = 5) -> list[MemoryRecord]:
+    def retrieve(
+        self, query: str, *, repository_scope: str | None = None, limit: int = 5
+    ) -> list[MemoryRecord]:
         if not query.strip() or limit <= 0:
             raise ValueError("MEMORY_QUERY_INVALID")
         query_tokens = set(re.findall(r"[a-z0-9_]+", query.lower()))

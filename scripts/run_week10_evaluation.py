@@ -15,12 +15,12 @@ from typing import Any
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from repoevo.chaos import run_runtime_chaos_suite
 from repoevo.benchmark_access import (
     load_private_task,
     load_public_manifest,
     private_hidden_test_path,
 )
+from repoevo.chaos import run_runtime_chaos_suite
 from repoevo.evaluation import build_evaluation_cases, summarize_rows
 from repoevo.model_adapter import OfflineRepairModel
 from repoevo.multi_agent import AgentState, MultiAgentConfig, MultiAgentRunner
@@ -59,7 +59,12 @@ def run_case(task: dict[str, Any], case: dict[str, Any], architecture: str) -> d
     started = time.perf_counter()
     with tempfile.TemporaryDirectory(prefix=f"repoevo-week10-{case['case_id']}-") as directory:
         workspace = Path(directory)
-        shutil.copytree(fixture, workspace, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache"))
+        shutil.copytree(
+            fixture,
+            workspace,
+            dirs_exist_ok=True,
+            ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache"),
+        )
         init_workspace(workspace)
         apply_patch(workspace, str(task["bug_patch"]))
         run_git(workspace, "add", ".")

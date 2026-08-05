@@ -174,7 +174,9 @@ def init_git(root: Path) -> None:
         assert result.returncode == 0, result.stderr
 
 
-def test_langgraph_single_agent_completes_bounded_loop(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_langgraph_single_agent_completes_bounded_loop(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     (tmp_path / "app.py").write_text("VALUE = 1\n", encoding="utf-8")
     init_git(tmp_path)
 
@@ -260,6 +262,8 @@ def test_langgraph_single_agent_applies_an_exact_replacement(
     assert state["status"] == "completed"
     assert state["changed_files"] == ["app.py"]
     assert (tmp_path / "app.py").read_text(encoding="utf-8") == "VALUE = 2\n"
+
+
 def test_agent_stops_at_tool_budget(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     (tmp_path / "app.py").write_text("VALUE = 1\n", encoding="utf-8")
     init_git(tmp_path)
@@ -280,7 +284,9 @@ def test_agent_stops_at_tool_budget(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     assert state["tool_call_count"] == 1
 
 
-def test_agent_accepts_passing_tests_at_the_tool_budget(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_agent_accepts_passing_tests_at_the_tool_budget(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     (tmp_path / "app.py").write_text("VALUE = 1\n", encoding="utf-8")
     init_git(tmp_path)
 

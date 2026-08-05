@@ -42,7 +42,9 @@ class ServiceContainer:
             else SQLiteCheckpointStore(root / "task_runs.db")
         )
         redis_url = settings.redis_url
-        self.queue = RedisTaskQueue(redis_url) if redis_url else SQLiteTaskQueue(root / "task_runs.db")
+        self.queue = (
+            RedisTaskQueue(redis_url) if redis_url else SQLiteTaskQueue(root / "task_runs.db")
+        )
         self.runtime = TaskRuntime(self.store, self.queue)
         self.artifacts = ArtifactStore(settings.repoevo_artifact_root)
         self.observability = Observability(root / "events.jsonl")
@@ -98,7 +100,9 @@ def healthz() -> dict[str, Any]:
 def create_task(request: TaskCreateRequest) -> dict[str, Any]:
     run_id = container.runtime.create_run(request.task_id, request.initial_state)
     container.observability.record_task("create", "queued")
-    container.observability.emit("task_created", run_id=run_id, payload={"task_id": request.task_id})
+    container.observability.emit(
+        "task_created", run_id=run_id, payload={"task_id": request.task_id}
+    )
     container.observability.set_queue_depth(len(container.queue))
     return {"run_id": run_id, "status": "queued", "state_version": 0}
 

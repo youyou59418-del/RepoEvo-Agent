@@ -38,7 +38,9 @@ def run_runtime_chaos_suite(root: Path | None = None) -> dict[str, Any]:
         )
 
         duplicate_queue = InMemoryTaskQueue()
-        duplicate_runtime = TaskRuntime(SQLiteCheckpointStore(base / "duplicate.db"), duplicate_queue)
+        duplicate_runtime = TaskRuntime(
+            SQLiteCheckpointStore(base / "duplicate.db"), duplicate_queue
+        )
         duplicate_id = duplicate_runtime.create_run("chaos-duplicate", {})
         duplicate_queue.enqueue(duplicate_id)
         first = duplicate_runtime.claim_next("worker-a")
@@ -61,7 +63,9 @@ def run_runtime_chaos_suite(root: Path | None = None) -> dict[str, Any]:
             stale_passed = True
         else:
             stale_passed = False
-        results.append(_result("stale_checkpoint", stale_passed, "optimistic version conflict was rejected"))
+        results.append(
+            _result("stale_checkpoint", stale_passed, "optimistic version conflict was rejected")
+        )
 
         artifact_store = ArtifactStore(base / "artifacts")
         context = ContextAssembler(artifact_store, max_chars=2000).assemble(

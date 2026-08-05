@@ -23,8 +23,12 @@ from repoevo.worker import AgentWorker
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the RepoEvo Worker once or continuously.")
-    parser.add_argument("--forever", action="store_true", help="Keep polling the queue after startup.")
-    parser.add_argument("--idle-sleep", type=float, default=0.5, help="Seconds to sleep when the queue is empty.")
+    parser.add_argument(
+        "--forever", action="store_true", help="Keep polling the queue after startup."
+    )
+    parser.add_argument(
+        "--idle-sleep", type=float, default=0.5, help="Seconds to sleep when the queue is empty."
+    )
     args = parser.parse_args()
     settings = RepoEvoSettings()
     root = settings.repoevo_data_root
@@ -33,7 +37,11 @@ def main() -> None:
         if settings.checkpoint_dsn
         else SQLiteCheckpointStore(root / "task_runs.db")
     )
-    queue = RedisTaskQueue(settings.redis_url) if settings.redis_url else SQLiteTaskQueue(root / "task_runs.db")
+    queue = (
+        RedisTaskQueue(settings.redis_url)
+        if settings.redis_url
+        else SQLiteTaskQueue(root / "task_runs.db")
+    )
     runtime = TaskRuntime(store, queue)
     worker = AgentWorker(runtime, worker_id=settings.worker_id)
     if args.forever:

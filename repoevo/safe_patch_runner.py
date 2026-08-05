@@ -42,7 +42,14 @@ class RunResult:
 
 
 _MAX_COMMAND_ARGS = 32
-_ALLOWED_TEST_PROGRAMS = {"pytest", "python", "python3"}
+_ALLOWED_TEST_PROGRAMS = {
+    "pytest",
+    "pytest.exe",
+    "python",
+    "python.exe",
+    "python3",
+    "python3.exe",
+}
 _FORBIDDEN_COMMAND_TOKENS = {";", "&&", "||", "|", ">", "<", "`"}
 
 

@@ -95,7 +95,9 @@ def test_multi_agent_completes_and_records_route(monkeypatch: object, tmp_path: 
     assert state["review_result"]["ok"] is True
 
 
-def test_transient_failure_is_retried_without_duplicate_patch(monkeypatch: object, tmp_path: Path) -> None:
+def test_transient_failure_is_retried_without_duplicate_patch(
+    monkeypatch: object, tmp_path: Path
+) -> None:
     (tmp_path / "app.py").write_text("VALUE = 1\n", encoding="utf-8")
     init_git(tmp_path)
     monkeypatch.setattr("repoevo.multi_agent.run_repository_tests", passing_tests)
