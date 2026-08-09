@@ -14,6 +14,8 @@ def test_deployment_artifacts_exist() -> None:
         ROOT / "deploy" / "docker-compose.yml",
         ROOT / "deploy" / "Dockerfile.api",
         ROOT / "deploy" / "Dockerfile.web",
+        ROOT / "deploy" / "Dockerfile.sandbox",
+        ROOT / "deploy" / "sandbox_gateway.py",
         ROOT / "deploy" / "vllm" / "start.sh",
         ROOT / "uv.lock",
         ROOT / "apps" / "web" / "package-lock.json",
@@ -39,12 +41,15 @@ def test_vllm_dry_run_does_not_require_secrets() -> None:
 
 def test_compose_contains_control_plane_services() -> None:
     compose = (ROOT / "deploy" / "docker-compose.yml").read_text(encoding="utf-8")
+    dockerfile = (ROOT / "deploy" / "Dockerfile.api").read_text(encoding="utf-8")
     assert "postgres:" in compose
     assert "redis:" in compose
     assert "api:" in compose
     assert "web:" in compose
     assert "POSTGRES_PASSWORD" in compose
     assert 'profiles: ["worker"]' in compose
+    assert 'command: ["/app/.venv/bin/python", "scripts/worker_once.py", "--forever"]' in compose
+    assert "apt-get install -y --no-install-recommends git" in dockerfile
 
 
 def test_docker_build_context_excludes_private_benchmark_assets() -> None:

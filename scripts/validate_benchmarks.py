@@ -46,9 +46,18 @@ def init_repo(root: Path) -> None:
 
 
 def apply_patch(root: Path, patch_text: str) -> None:
-    result = run(["git", "apply", "--whitespace=nowarn"], root, input_text=patch_text)
+    # On Windows, text-mode subprocess input rewrites LF to CRLF before Git
+    # receives the patch.  Send the generated UTF-8 bytes unchanged so patch
+    # context is identical on Windows and Linux.
+    result = subprocess.run(
+        ["git", "apply", "--whitespace=nowarn"],
+        cwd=root,
+        input=patch_text.encode("utf-8"),
+        capture_output=True,
+        check=False,
+    )
     if result.returncode:
-        raise RuntimeError(result.stderr.strip())
+        raise RuntimeError(result.stderr.decode("utf-8", errors="replace").strip())
 
 
 def run_tests(root: Path, hidden_test: Path) -> subprocess.CompletedProcess[str]:

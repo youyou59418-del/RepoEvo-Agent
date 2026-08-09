@@ -1,0 +1,7 @@
+FROM python:3.11-slim
+
+RUN useradd --system --uid 10001 repoevo \
+    && pip install --no-cache-dir pytest==8.3.5
+
+USER 10001
+WORKDIR /workspace

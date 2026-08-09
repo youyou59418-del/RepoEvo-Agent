@@ -70,7 +70,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: ["python", "scripts/worker_once.py", "--forever"]
+    command: ["/app/.venv/bin/python", "scripts/worker_once.py", "--forever"]
     profiles: ["worker"]
     volumes:
       - repoevo-artifacts:/data
